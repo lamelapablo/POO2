@@ -1,0 +1,15 @@
+JavaScript:
+- Orientado a objetos y a prototipos (distinto a clases)
+- Interpretado
+- Funciones de 1er orden -> las funciones son objetos
+- Debilmente tipado -> puedo operar entre distintos tipos de datos
+- Dinamico
+
+NodeJS --> entorno de ejecucion (la pila de funciones requeridas para ejecutar js)
+
+Alcance de variables:
+- var   -> a nivel de funcion
+- let   -> a nivel de bloque
+- const -> a nivel de bloque (no puede cambiar su definicion, puede cambiar su estado interno)
+
+
