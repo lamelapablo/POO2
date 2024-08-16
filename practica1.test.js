@@ -50,17 +50,17 @@ describe("ejercicio 4", () => {
     "Vettel",
   ];
   test("inciso a", () => {
-    const ejercicioA = (piloto)=>pilotos.indexOf("Russell")+1;
-    expect(ejercicioA("Russel")).toEqual(3);
+    const ejercicioA = (piloto)=>pilotos.indexOf(piloto)+1;
+    expect(ejercicioA("Russell")).toEqual(3);
   });
 
   test("inciso b", () => {
-    const ejercicioB = (n)=>{pilotos.findIndex(n-1)};
+    const ejercicioB = (n)=>pilotos[n-1];
     expect(ejercicioB(6)).toEqual("Leclerc");
   });
 
   test("inciso c", () => {
-    const ejercicioC = null;
+    const ejercicioC = (letra)=>pilotos.filter(piloto=>piloto.includes(letra));
 
     expect(ejercicioC("a")).toEqual([
       "Verstappen",
