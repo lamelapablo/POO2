@@ -9,7 +9,9 @@ const repeat = (functionToRepeat, n)=>{
   return arr;
 };
 const printString = (n)=>"Execution Number: " + n;
-const howManyTimesAppear = null;
+const howManyTimesAppear = (arr, num)=>arr.reduce(
+  (accumulator, currentValue) => currentValue === num ? accumulator+1 : accumulator, 0
+);
 
 test("ejercicio 1", () => {
   expect(cuadrado_de(2)).toBe(4);
@@ -60,7 +62,7 @@ describe("ejercicio 4", () => {
   });
 
   test("inciso c", () => {
-    const ejercicioC = (letra)=>pilotos.filter(piloto=>piloto.includes(letra));
+    const ejercicioC = (letra)=>pilotos.filter(piloto=>piloto.toLowerCase().includes(letra));
 
     expect(ejercicioC("a")).toEqual([
       "Verstappen",
@@ -71,7 +73,7 @@ describe("ejercicio 4", () => {
   });
 
   test("inciso d", () => {
-    const ejercicioD = null;
+    const ejercicioD = (arr)=>arr.map((piloto)=>pilotos.includes(piloto));
     expect(ejercicioD(["Russell", "Bottas", "Perez"])).toEqual([
       true,
       false,
@@ -79,8 +81,13 @@ describe("ejercicio 4", () => {
     ]);
   });
   test("inciso e", () => {
-    const corregirPilotos = null;
-
+    const corregirPilotos = (pilotos)=>{
+      let temp = pilotos[1];
+      pilotos[1] = pilotos[4];
+      pilotos[4] = temp;
+      return pilotos;
+    };
+    
     expect(corregirPilotos(pilotos)).toEqual([
       "Verstappen",
       "Perez",
