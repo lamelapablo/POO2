@@ -1,16 +1,16 @@
-const cuadrado_de = num => num**2;
-const creaResta = (x) =>(y) => y-x;
-const repeat = (functionToRepeat, n)=>{
+const cuadrado_de = num => num ** 2;
+const creaResta = (x) => (y) => y - x;
+const repeat = (functionToRepeat, n) => {
   const arr = [];
-  for(let i=1; i<=n; i++){
+  for (let i = 1; i <= n; i++) {
     arr.push(functionToRepeat(i));
   }
 
   return arr;
 };
-const printString = (n)=>"Execution Number: " + n;
-const howManyTimesAppear = (arr, num)=>arr.reduce(
-  (accumulator, currentValue) => currentValue === num ? accumulator+1 : accumulator, 0
+const printString = (n) => "Execution Number: " + n;
+const howManyTimesAppear = (arr, num) => arr.reduce(
+  (accumulator, currentValue) => currentValue === num ? accumulator + 1 : accumulator, 0
 );
 
 test("ejercicio 1", () => {
@@ -52,17 +52,17 @@ describe("ejercicio 4", () => {
     "Vettel",
   ];
   test("inciso a", () => {
-    const ejercicioA = (piloto)=>pilotos.indexOf(piloto)+1;
+    const ejercicioA = (piloto) => pilotos.indexOf(piloto) + 1;
     expect(ejercicioA("Russell")).toEqual(3);
   });
 
   test("inciso b", () => {
-    const ejercicioB = (n)=>pilotos[n-1];
+    const ejercicioB = (n) => pilotos[n - 1];
     expect(ejercicioB(6)).toEqual("Leclerc");
   });
 
   test("inciso c", () => {
-    const ejercicioC = (letra)=>pilotos.filter(piloto=>piloto.toLowerCase().includes(letra));
+    const ejercicioC = (letra) => pilotos.filter(piloto => piloto.toLowerCase().includes(letra));
 
     expect(ejercicioC("a")).toEqual([
       "Verstappen",
@@ -73,7 +73,7 @@ describe("ejercicio 4", () => {
   });
 
   test("inciso d", () => {
-    const ejercicioD = (arr)=>arr.map((piloto)=>pilotos.includes(piloto));
+    const ejercicioD = (arr) => arr.map((piloto) => pilotos.includes(piloto));
     expect(ejercicioD(["Russell", "Bottas", "Perez"])).toEqual([
       true,
       false,
@@ -81,13 +81,13 @@ describe("ejercicio 4", () => {
     ]);
   });
   test("inciso e", () => {
-    const corregirPilotos = (pilotos)=>{
+    const corregirPilotos = (pilotos) => {
       let temp = pilotos[1];
       pilotos[1] = pilotos[4];
       pilotos[4] = temp;
       return pilotos;
     };
-    
+
     expect(corregirPilotos(pilotos)).toEqual([
       "Verstappen",
       "Perez",
@@ -114,7 +114,16 @@ test("ejercicio 5", () => {
 test("ejercicio 6", () => {
   const array1 = [4, 8, 2, 13, 20];
   const array2 = [4, 8, 2, -5, 20];
-  const ejercicio6 = null;
+  const ejercicio6 = (arr) => {
+    let min = arr[0];
+    arr.forEach(num => {
+      if (num < min) {
+        min = num;
+      }
+    })
+    newArr = arr.map(num => num += min);
+    return newArr;
+  };
 
   expect(ejercicio6(array1)).toEqual([6, 10, 4, 15, 22]);
   expect(ejercicio6(array2)).toEqual([-1, 3, -3, -10, 15]);
@@ -133,6 +142,8 @@ describe("ejercicio 7", () => {
     ];
 
     //resolucion
+
+    personas.sort()
 
     //fin resolucion
 
@@ -157,7 +168,19 @@ describe("ejercicio 7", () => {
       "Yamila Rodriguez",
       "Florencia Bonsegundo",
     ];
-    const ejercicioB = null;
+    const ejercicioB = (personas) => {
+      // newPersonas = [];
+      // personas.forEach(persona => {
+      //   nombre = persona.split(" ").reverse().join(" ");
+      //   newPersonas.push(nombre);
+      // })
+      personas.forEach((persona, index, arr) => {
+        arr[index] = persona.split(" ").reverse().join(" ");
+      })
+
+      return personas;
+
+    };
     expect(ejercicioB(personas)).toEqual([
       "Messi Lionel",
       "Depaul Rodrigo",
@@ -181,7 +204,7 @@ describe("ejercicio 7", () => {
     ];
 
     //resolucion
-
+    personas.sort();
     //fin resolucion
 
     expect(personas).toEqual([
