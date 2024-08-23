@@ -121,7 +121,7 @@ test("ejercicio 6", () => {
         min = num;
       }
     })
-    newArr = arr.map(num => num += min);
+    newArr = arr.map(num => num + min);
     return newArr;
   };
 
