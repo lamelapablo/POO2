@@ -14,7 +14,9 @@ describe("Sistema Centralizado", () => {
     });
 
     test("al cargar una tarjeta sube por segunda vez, las recargas pendientes son 2", () => {
-
+        sistemaCentralizado.cargarTarjeta(123, 1000);
+        sistemaCentralizado.cargarTarjeta(123, 1000);
+        expect(sistemaCentralizado.cantidadRecargasPendientes()).toBe(2);
     });
 
     describe("al acreditar una recarga", () => {
@@ -26,6 +28,7 @@ describe("Sistema Centralizado", () => {
         });
 
         test("con una sube que no fue cargada, su saldo permanece igual", () => {
+            sistemaCentralizado.acreditarSaldo(tarjetaSube);
             expect(tarjetaSube.obtenerSaldo()).toBe(0);
         });
 
@@ -37,7 +40,6 @@ describe("Sistema Centralizado", () => {
 
         test("con una sube que fue cargada 2 veces, su saldo aumenta en la cantidad cargada", () => {
             sistemaCentralizado.cargarTarjeta(identificador, 1000);
-            sistemaCentralizado.acreditarSaldo(tarjetaSube);
             sistemaCentralizado.cargarTarjeta(identificador, 500);
             sistemaCentralizado.acreditarSaldo(tarjetaSube);
             expect(tarjetaSube.obtenerSaldo()).toBe(1500);
@@ -48,7 +50,6 @@ describe("Sistema Centralizado", () => {
             expect(sistemaCentralizado.cantidadRecargasPendientes()).toBe(1);
             sistemaCentralizado.cargarTarjeta(identificador, 500);
             expect(sistemaCentralizado.cantidadRecargasPendientes()).toBe(2);
-            sistemaCentralizado.acreditarSaldo(tarjetaSube);
             sistemaCentralizado.acreditarSaldo(tarjetaSube);
             expect(sistemaCentralizado.cantidadRecargasPendientes()).toBe(0);
         });
@@ -75,11 +76,9 @@ describe("Sistema Centralizado", () => {
 
             expect(sistemaCentralizado.cantidadRecargasPendientes()).toBe(5);
 
-            for (let i = 0; i < 3; i++) {
-                sistemaCentralizado.acreditarSaldo(tarjetaSube);
-            }
+            sistemaCentralizado.acreditarSaldo(tarjetaSube);
 
-            expect(sistemaCentralizado.cantidadRecargasPendientes()).toBe(2);
+            expect(sistemaCentralizado.cantidadRecargasPendientes()).toBe(0);
         });
     });
 });

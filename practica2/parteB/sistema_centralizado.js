@@ -11,7 +11,8 @@ class SistemaCentralizado {
 
     acreditarSaldo(sube) {
         const idSube = sube.obtenerIdentificador();
-        const recPen = this.cargas[idSube]?.shift() || 0;
+        const recPen = this.cargas[idSube]?.reduce((x, y) => x + y) || 0;
+        this.cargas[idSube] = [];
         sube.cargarSaldo(recPen);
     }
 
@@ -27,16 +28,30 @@ module.exports = SistemaCentralizado;
 // const sistema = new SistemaCentralizado();
 // const sube = new TarjetaSube(123);
 
-
 // sistema.cargarTarjeta(123, 1000);
-// console.log(sistema.cargas);
-// // console.log(sistema.cargas);
-// // console.log(sistema.cantidadRecargasPendientes());
 // sistema.acreditarSaldo(sube);
 // console.log(sistema.cargas);
 
+// console.log(sube.obtenerSaldo());
 
+// sistema.acreditarSaldo(sube)
 
 // console.log(sube.obtenerSaldo());
 
+// const juan = {
+//     nombre: "Juan",
+//     edad: 20
+// };
 
+// juan.saludar = function () {
+//     console.log(`Hola, mi nombre es ${this.nombre}`);
+// }
+
+// console.log(juan.saludar);
+
+// juan.saludar();
+
+// const pedro = Object.create(juan);
+
+// pedro.nombre = "Pedro";
+// pedro.saludar();
