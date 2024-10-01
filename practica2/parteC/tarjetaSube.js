@@ -1,6 +1,6 @@
 const conversor = require("./conversor");
 
-function TarjetaSube(identificador) {
+const TarjetaSube = function (identificador) {
     this.saldo = 0;
     this.identificador = identificador;
 }
