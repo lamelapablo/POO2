@@ -1,9 +1,0 @@
-# La zona es de 100x100
-# Rover se mueve hacia adelante
-# Rover se mueve para atras
-# Rover se mueve para la derecha
-# Rover se mueve para la izquierda
-# Rover no puede salir afuera de la zona (permanece en donde esta)
-# No se puede enviar una secuencia de comandos de mas de 10 unidades
-# Se envia mensaje al rover
-# No se puede enviar un comando no conocido
