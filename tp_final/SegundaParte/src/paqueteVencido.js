@@ -5,15 +5,15 @@ const PaqueteVencido = function () {
 
     this.descontarDatosEnMB = function () { throw new Error("El paquete adquirido esta vencido"); }
 
-    // this.obtenerTiempoParaLlamadas = () => 0;
+    this.obtenerTiempoParaLlamadas = () => 0;
 
-    // this.obtenerDatosEnMB = () => 0;
+    this.obtenerDatosEnMB = () => 0;
 
-    // this.estoyVencido = () => true;
+    this.sosUnPaqueteNulo = () => false;
 
-    // this.validaSiEstasVencido = () => this;
+    this.estoyVencido = () => true;
 
-    // this.validarSiPuedoComprarOtroPaquete = () => true;
+    this.validaSiEstasVencido = () => this;
 }
 
 module.exports = PaqueteVencido;

@@ -5,15 +5,15 @@ const PaqueteNulo = function () {
 
     this.descontarDatosEnMB = function () { throw new Error("El cliente no tiene un paquete asignado"); }
 
-    // this.obtenerTiempoParaLlamadas = () => 0;
+    this.obtenerTiempoParaLlamadas = () => 0;
 
-    // this.obtenerDatosEnMB = () => 0;
+    this.obtenerDatosEnMB = () => 0;
 
-    // this.estoyVencido = () => false;
+    this.sosUnPaqueteNulo = () => true;
+
+    this.estoyVencido = () => false;
 
     this.validaSiEstasVencido = () => this;
-
-    this.validarSiPuedoComprarOtroPaquete = () => true;
 }
 
 module.exports = PaqueteNulo;

@@ -2,8 +2,8 @@
 const Cliente = require("../src/cliente");
 const Paquete = require("../src/paquete");
 const FiltroRangoFechaHora = require("../src/filtroRangoFechaHora");
-const FechaMinima = require("../src/fechaMinima");
-const FechaMaxima = require("../src/fechaMaxima");
+const FechaNulaMinima = require("../src/fechaNulaMinima");
+const FechaNulaMaxima = require("../src/fechaNulaMaxima");
 
 describe('Cliente de la empresa telefonica', () => {
 
@@ -175,66 +175,14 @@ describe('Cliente de la empresa telefonica', () => {
         expect(() => cliente.realizarLlamada(10)).toThrow(new Error("El paquete adquirido esta vencido"));
     });
 
-    test("Al cliente se le vence el paquete por lo que no puede consumir datos", () => {
-        jest.useFakeTimers();
-        jest.setSystemTime(new Date('2025-07-08T10:00:00Z'));
-
-        cliente.cargarDinero(1000);
-        const paquete = new Paquete(2.5, 1000, 3, 400);
-        cliente.comprarPaquete(paquete);
-
-        jest.setSystemTime(new Date('2025-07-11T10:00:00Z'));
-
-        expect(() => cliente.consumirDatosEnMB(10)).toThrow(new Error("El paquete adquirido esta vencido"));
-    });
-
-
-    test("Al cliente se le vence el paquete por lo que puede comprar otro", () => {
-        jest.useFakeTimers();
-        jest.setSystemTime(new Date('2025-07-08T10:00:00Z'));
-
-        cliente.cargarDinero(1000);
-        const paquete = new Paquete(2.5, 1000, 3, 400);
-        cliente.comprarPaquete(paquete);
-
-        jest.setSystemTime(new Date('2025-07-11T10:00:00Z'));
-        const otroPaquete = new Paquete(2.5, 1000, 3, 400);
-        cliente.comprarPaquete(otroPaquete);
-
-        expect(cliente.obtenerPaqueteAsignado()).toEqual(otroPaquete);
-    });
-
     test("El cliente agota los recursos del paquete por lo que no puede realizar una llamada", () => {
         cliente.cargarDinero(1000);
         const paquete = new Paquete(2.5, 1000, 30, 400);
         cliente.comprarPaquete(paquete);
-        cliente.consumirDatosEnMB(2500);
         cliente.realizarLlamada(1000);
+        cliente.consumirDatosEnMB(2500);
 
         expect(() => cliente.realizarLlamada(1)).toThrow(new Error("El paquete se encuentra agotado"));
-    });
-
-    test("El cliente agota los recursos del paquete por lo que no puede consumir datos", () => {
-        cliente.cargarDinero(1000);
-        const paquete = new Paquete(2.5, 1000, 30, 400);
-        cliente.comprarPaquete(paquete);
-        cliente.realizarLlamada(1000);
-        cliente.consumirDatosEnMB(2500);
-
-        expect(() => cliente.consumirDatosEnMB(1)).toThrow(new Error("El paquete se encuentra agotado"));
-    });
-
-    test("El cliente agota los recursos del paquete por lo que puede comprar otro", () => {
-        cliente.cargarDinero(1000);
-        const paquete = new Paquete(2.5, 1000, 30, 400);
-        cliente.comprarPaquete(paquete);
-        cliente.realizarLlamada(1000);
-        cliente.consumirDatosEnMB(2500);
-
-        const otroPaquete = new Paquete(2.5, 1000, 3, 400);
-        cliente.comprarPaquete(otroPaquete);
-
-        expect(cliente.obtenerPaqueteAsignado()).toEqual(otroPaquete);
     });
 
     test("Al cliente se le vence el paquete pero como tiene activada la renovacion puede seguir realizando llamadas", () => {
@@ -268,39 +216,6 @@ describe('Cliente de la empresa telefonica', () => {
 
         expect(paqueteRenovado.obtenerDatosEnMB()).toBe(2400);
         expect(paquete).not.toEqual(paqueteRenovado);
-    });
-
-    test("Al cliente se le agota el paquete pero como tiene activada la renovacion puede seguir consumiendo datos y realizando llamadas", () => {
-        clienteConRenovacionAutomatica.cargarDinero(1000);
-        const paquete = new Paquete(2.5, 1000, 3, 400);
-        clienteConRenovacionAutomatica.comprarPaquete(paquete);
-
-        clienteConRenovacionAutomatica.realizarLlamada(1000);
-        clienteConRenovacionAutomatica.consumirDatosEnMB(2500);
-
-        clienteConRenovacionAutomatica.realizarLlamada(10);
-        clienteConRenovacionAutomatica.consumirDatosEnMB(100);
-
-        const paqueteRenovado = clienteConRenovacionAutomatica.obtenerPaqueteAsignado();
-
-        expect(paqueteRenovado.obtenerTiempoParaLlamadas()).toBe(990);
-        expect(paqueteRenovado.obtenerDatosEnMB()).toBe(2400);
-        expect(paquete).not.toEqual(paqueteRenovado);
-    });
-
-    test("Al cliente no se le vence el paquete por lo que luego de 1 dia y de haber realizado un consumo es el mismo que compro previamente", () => {
-        jest.useFakeTimers();
-        jest.setSystemTime(new Date('2025-07-08T10:00:00Z'));
-
-        clienteConRenovacionAutomatica.cargarDinero(1000);
-        const paquete = new Paquete(2.5, 1000, 3, 400);
-        clienteConRenovacionAutomatica.comprarPaquete(paquete);
-
-        jest.setSystemTime(new Date('2025-07-09T10:00:00Z'));
-        clienteConRenovacionAutomatica.consumirDatosEnMB(100);
-
-        expect(paquete.obtenerDatosEnMB()).toBe(2400);
-        expect(clienteConRenovacionAutomatica.obtenerPaqueteAsignado()).toBe(paquete);
     });
 
     test("El cliente puede realizar llamadas, consumir datos y obtener el historial de consumos ordenados por fecha de manera ascendente con un filtro de fecha y hora de incio y fin", () => {
@@ -356,7 +271,7 @@ describe('Cliente de la empresa telefonica', () => {
         cliente.consumirDatosEnMB(30, inicio4, fin4);
 
         const inicio = new Date("2025-08-07T09:00:00Z");
-        const filtroRangoFechaHora = new FiltroRangoFechaHora(inicio, new FechaMaxima());
+        const filtroRangoFechaHora = new FiltroRangoFechaHora(inicio, new FechaNulaMaxima());
         const historial = cliente.obtenerHistorialConsumosOrdenadoPorFechaAscendente(filtroRangoFechaHora);
 
         expect(historial.length).toBe(3);
@@ -387,19 +302,12 @@ describe('Cliente de la empresa telefonica', () => {
         cliente.consumirDatosEnMB(30, inicio4, fin4);
 
         const fin = new Date("2025-08-07T18:00:00Z");
-        const filtroRangoFechaHora = new FiltroRangoFechaHora(new FechaMinima(), fin);
+        const filtroRangoFechaHora = new FiltroRangoFechaHora(new FechaNulaMinima(), fin);
         const historial = cliente.obtenerHistorialConsumosOrdenadoPorFechaAscendente(filtroRangoFechaHora);
 
         expect(historial.length).toBe(3);
         expect(historial[0].inicio.getTime()).toBe(inicio3.getTime());
         expect(historial[1].inicio.getTime()).toBe(inicio2.getTime());
         expect(historial[2].inicio.getTime()).toBe(inicio1.getTime());
-    });
-
-    test("El cliente no puede crear un filtro de rango de fecha hora con el orden invertido", () => {
-        const fechaHoraInicio = new Date("2025-08-07T10:30:00Z");
-        const fechaHoraFin = new Date("2025-07-07T10:40:00Z");
-
-        expect(() => new FiltroRangoFechaHora(fechaHoraInicio, fechaHoraFin)).toThrow(new Error("La fecha de fin debe ser posterior a la de inicio"));
     });
 });

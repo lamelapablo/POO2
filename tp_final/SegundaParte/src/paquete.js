@@ -23,16 +23,12 @@ const Paquete = function (cantidadDatos, minutosParaLlamadas, duracion, costo) {
     this.descontarMinutos = function (cantidadMinutos) {
         this.validarTengoSuficientesMinutos(cantidadMinutos);
         this.minutosParaLlamadas -= cantidadMinutos;
-        if (this.estoyAgotado()) return this.crearPaqueteAgotado();
-        return this;
     }
 
     this.descontarDatosEnMB = function (cantidadDatos) {
         const cantidadDatosEnGB = cantidadDatos / 1000;
         this.validarSiTengoSuficientesDatos(cantidadDatosEnGB);
         this.cantidadDatos -= cantidadDatosEnGB;
-        if (this.estoyAgotado()) return this.crearPaqueteAgotado();
-        return this;
     }
 
     this.estoyVencido = function () {
@@ -44,7 +40,11 @@ const Paquete = function (cantidadDatos, minutosParaLlamadas, duracion, costo) {
 
     this.marcarComoCompradoEn = function (fechaDeCompra) {
         this.fechaDeCompra = fechaDeCompra;
+        if (this.estoyVencido()) return new PaqueteVencido();
+        return this;
     }
+
+    this.sosUnPaqueteNulo = () => false;
 
     this.puedoComprarteCon = (saldo) => saldo >= this.costo;
 
@@ -61,24 +61,25 @@ const Paquete = function (cantidadDatos, minutosParaLlamadas, duracion, costo) {
         return this;
     }
 
+    this.validaSiEstasAgotado = function () {
+        if (this.estoyAgotado()) return new PaqueteAgotado();
+        return this;
+    }
+
     this.estoyAgotado = () => !this.minutosParaLlamadas && !this.cantidadDatos;
 
     this.renovate = function () {
         if (!this.estoyVencido()) return this;
 
-        const nuevoPaquete = new Paquete(cantidadDatosOriginal, minutosParaLlamadasOriginal, this.duracion, this.costo);
+        const nuevoPaquete = new Paquete(
+            cantidadDatosOriginal,
+            minutosParaLlamadasOriginal,
+            this.duracion,
+            this.costo
+        );
         const fechaActual = new Date();
         nuevoPaquete.marcarComoCompradoEn(fechaActual);
         return nuevoPaquete;
-    }
-
-    this.validarSiPuedoComprarOtroPaquete = function () {
-        if (!this.estoyAgotado() && !this.estoyVencido()) throw new Error("El cliente ya tiene un paquete asignado");
-    }
-
-    this.crearPaqueteAgotado = function () {
-        const paqueteOriginal = new Paquete(cantidadDatosOriginal, minutosParaLlamadasOriginal, this.duracion, this.costo);
-        return new PaqueteAgotado(paqueteOriginal);
     }
 }
 

@@ -30,14 +30,17 @@ const Cliente = function (nombre, apellido, numeroDeLinea, renovarPaquetesAutoma
 
     this.comprarPaquete = function (paquete) {
         this.validarQuePuedoComprarPaquete(paquete);
-        this.paqueteAsignado = paquete;
         const fechaActual = new Date();
-        this.paqueteAsignado.marcarComoCompradoEn(fechaActual);
+        this.paqueteAsignado = paquete.marcarComoCompradoEn(fechaActual);
     }
 
     this.validarQuePuedoComprarPaquete = function (paquete) {
+        this.validarSiYaTengoUnPaqueteAsignado();
         this.validarSiTengoSaldoSuficienteParaComprar(paquete);
-        this.paqueteAsignado.validarSiPuedoComprarOtroPaquete();
+    }
+
+    this.validarSiYaTengoUnPaqueteAsignado = function () {
+        if (!this.paqueteAsignado.sosUnPaqueteNulo()) throw new Error("El cliente ya tiene un paquete asignado");
     }
 
     this.validarSiTengoSaldoSuficienteParaComprar = function (unPaquete) {
@@ -47,7 +50,8 @@ const Cliente = function (nombre, apellido, numeroDeLinea, renovarPaquetesAutoma
     this.realizarLlamada = function (duracion, inicioConsumo, finConsumo) {
         if (this.renuevoPaqueteAutomaticamente) this.paqueteAsignado = this.paqueteAsignado.renovate();
         this.paqueteAsignado = this.paqueteAsignado.validaSiEstasVencido();
-        this.paqueteAsignado = this.paqueteAsignado.descontarMinutos(duracion);
+        this.paqueteAsignado.descontarMinutos(duracion);
+        this.paqueteAsignado = this.paqueteAsignado.validaSiEstasAgotado();
         const consumoMinutos = new ConsumoMinutos(duracion, inicioConsumo, finConsumo);
         this.registrarConsumo(consumoMinutos);
     }
@@ -55,7 +59,8 @@ const Cliente = function (nombre, apellido, numeroDeLinea, renovarPaquetesAutoma
     this.consumirDatosEnMB = function (mbAConsumir, inicioConsumo, finConsumo) {
         if (this.renuevoPaqueteAutomaticamente) this.paqueteAsignado = this.paqueteAsignado.renovate();
         this.paqueteAsignado = this.paqueteAsignado.validaSiEstasVencido();
-        this.paqueteAsignado = this.paqueteAsignado.descontarDatosEnMB(mbAConsumir);
+        this.paqueteAsignado.descontarDatosEnMB(mbAConsumir);
+        this.paqueteAsignado = this.paqueteAsignado.validaSiEstasAgotado();
         const consumoDatos = new ConsumoDatos(mbAConsumir, inicioConsumo, finConsumo);
         this.registrarConsumo(consumoDatos);
     }

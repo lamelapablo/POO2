@@ -1,33 +1,24 @@
 "use strict";
 
-const PaqueteAgotado = function () {
-    this.descontarMinutos = function () {
-        throw new Error("El paquete se encuentra agotado");
-    }
+const PaqueteAgotado = function (paqueteOriginal) {
 
-    this.descontarDatosEnMB = function () {
-        throw new Error("El paquete se encuentra agotado");
-    }
+    this.paqueteOriginal = paqueteOriginal;
 
-    this.obtenerTiempoParaLlamadas = function () {
-        return 0;
-    }
+    this.descontarMinutos = function () { throw new Error("El paquete se encuentra agotado"); }
 
-    this.obtenerDatosEnMB = function () {
-        return 0;
-    }
+    this.descontarDatosEnMB = function () { throw new Error("El paquete se encuentra agotado"); }
 
-    this.sosUnPaqueteNulo = function () {
-        return false;
-    }
+    // this.obtenerTiempoParaLlamadas = () => 0;
 
-    this.estoyVencido = function () {
-        return false;
-    }
+    // this.obtenerDatosEnMB = () => 0;
 
-    this.validaSiEstasVencido = function () {
-        return this;
-    }
+    // this.estoyVencido = () => false;
+
+    this.validaSiEstasVencido = () => this;
+
+    this.validarSiPuedoComprarOtroPaquete = () => true;
+
+    this.renovate = () => this.paqueteOriginal.renovate()
 }
 
 module.exports = PaqueteAgotado;
