@@ -1,16 +1,15 @@
 "use strict";
 
-const ConsumoMinutos = function (minutos, incio, fin) {
+const ConsumoMinutos = function (minutos, inicio, fin) {
 
     this.validarFechas = function (inicio, fin) {
-        if (!inicio || !fin) return;
         if (fin <= inicio) throw new Error("La fecha de fin debe ser posterior a la de inicio");
     }
 
-    this.validarFechas(incio, fin);
+    this.validarFechas(inicio, fin);
 
     this.minutos = minutos;
-    this.inicio = incio;
+    this.inicio = inicio;
     this.fin = fin;
 
     this.ocurrioDespuesDe = function (unaFechaHora) {

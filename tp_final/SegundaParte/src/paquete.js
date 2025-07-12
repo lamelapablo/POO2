@@ -3,7 +3,14 @@
 const PaqueteAgotado = require("./paqueteAgotado");
 const PaqueteVencido = require("./paqueteVencido");
 
-const Paquete = function (cantidadDatos, minutosParaLlamadas, duracion, costo) {
+const Paquete = function (cantidadDatos, minutosParaLlamadas, duracion, costo, appsConUsoIlimitado = []) {
+
+    this.validarValoresNoNegativos = function (cantidadDatos, minutosParaLlamadas, duracion, costo) {
+        const algunoEsNegativo = cantidadDatos < 0 || minutosParaLlamadas < 0 || duracion < 0 || costo < 0;
+        if (algunoEsNegativo) throw new Error("El paquete no puede tener ninguno de sus valores negativo");
+    }
+
+    this.validarValoresNoNegativos(cantidadDatos, minutosParaLlamadas, duracion, costo);
 
     const MB_POR_GB = 1000;
 
@@ -12,6 +19,7 @@ const Paquete = function (cantidadDatos, minutosParaLlamadas, duracion, costo) {
     this.duracion = duracion;
     this.costo = costo;
     this.fechaDeCompra = null;
+    this.appsConUsoIlimitado = appsConUsoIlimitado.map(app => app.toLowerCase());
 
     const cantidadDatosOriginal = cantidadDatos;
     const minutosParaLlamadasOriginal = minutosParaLlamadas;
@@ -23,12 +31,17 @@ const Paquete = function (cantidadDatos, minutosParaLlamadas, duracion, costo) {
     this.descontarMinutos = function (cantidadMinutos) {
         this.validarTengoSuficientesMinutos(cantidadMinutos);
         this.minutosParaLlamadas -= cantidadMinutos;
+        if (this.estoyAgotado()) return this.crearPaqueteAgotado();
+        return this;
     }
 
-    this.descontarDatosEnMB = function (cantidadDatos) {
-        const cantidadDatosEnGB = cantidadDatos / 1000;
+    this.descontarDatosEnMB = function (cantidadDatos, appConsumidora = "") {
+        if (this.appsConUsoIlimitado.includes(appConsumidora.toLowerCase())) return this;
+        const cantidadDatosEnGB = cantidadDatos / MB_POR_GB;
         this.validarSiTengoSuficientesDatos(cantidadDatosEnGB);
         this.cantidadDatos -= cantidadDatosEnGB;
+        if (this.estoyAgotado()) return this.crearPaqueteAgotado();
+        return this;
     }
 
     this.estoyVencido = function () {
@@ -40,29 +53,20 @@ const Paquete = function (cantidadDatos, minutosParaLlamadas, duracion, costo) {
 
     this.marcarComoCompradoEn = function (fechaDeCompra) {
         this.fechaDeCompra = fechaDeCompra;
-        if (this.estoyVencido()) return new PaqueteVencido();
-        return this;
     }
-
-    this.sosUnPaqueteNulo = () => false;
 
     this.puedoComprarteCon = (saldo) => saldo >= this.costo;
 
     this.validarTengoSuficientesMinutos = function (minutosADescontar) {
-        if (this.minutosParaLlamadas < minutosADescontar) throw new Error("El cliente no tiene suficientes minutos para realizar la llamada");
+        if (this.minutosParaLlamadas < minutosADescontar) throw new Error("El cliente no tiene suficientes minutos para descontar");
     }
 
     this.validarSiTengoSuficientesDatos = function (datosADescontar) {
-        if (this.cantidadDatos < datosADescontar) throw new Error("El cliente no tiene suficientes datos para realizar el consumo");
+        if (this.cantidadDatos < datosADescontar) throw new Error("El cliente no tiene suficientes datos para descontar");
     }
 
     this.validaSiEstasVencido = function () {
         if (this.estoyVencido()) return new PaqueteVencido();
-        return this;
-    }
-
-    this.validaSiEstasAgotado = function () {
-        if (this.estoyAgotado()) return new PaqueteAgotado();
         return this;
     }
 
@@ -71,15 +75,34 @@ const Paquete = function (cantidadDatos, minutosParaLlamadas, duracion, costo) {
     this.renovate = function () {
         if (!this.estoyVencido()) return this;
 
-        const nuevoPaquete = new Paquete(
-            cantidadDatosOriginal,
-            minutosParaLlamadasOriginal,
-            this.duracion,
-            this.costo
-        );
+        const nuevoPaquete = new Paquete(cantidadDatosOriginal, minutosParaLlamadasOriginal, this.duracion, this.costo);
         const fechaActual = new Date();
         nuevoPaquete.marcarComoCompradoEn(fechaActual);
         return nuevoPaquete;
+    }
+
+    this.validarSiPuedoAdquirirOtroPaquete = function () {
+        if (!this.estoyAgotado() && !this.estoyVencido()) throw new Error("El cliente ya tiene un paquete asignado");
+    }
+
+    this.crearPaqueteAgotado = function () {
+        const paqueteOriginal = new Paquete(cantidadDatosOriginal, minutosParaLlamadasOriginal, this.duracion, this.costo);
+        return new PaqueteAgotado(paqueteOriginal);
+    }
+
+    this.prestarDatosA = function (unCliente, mbAPrestar) {
+        const gbAPrestar = mbAPrestar / MB_POR_GB;
+        this.descontarDatosEnMB(mbAPrestar);
+        const paquetePrestado = new Paquete(gbAPrestar, 0, this.duracion, this.costo);
+        paquetePrestado.marcarComoCompradoEn(this.fechaDeCompra);
+        unCliente.asignar(paquetePrestado);
+    }
+
+    this.prestarMinutosA = function (unCliente, minutosAPrestar) {
+        this.descontarMinutos(minutosAPrestar);
+        const paquetePrestado = new Paquete(0, minutosAPrestar, this.duracion, this.costo);
+        paquetePrestado.marcarComoCompradoEn(this.fechaDeCompra);
+        unCliente.asignar(paquetePrestado);
     }
 }
 

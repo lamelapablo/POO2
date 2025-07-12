@@ -5,6 +5,13 @@ const PaqueteVencido = require("./paqueteVencido");
 
 const Paquete = function (cantidadDatos, minutosParaLlamadas, duracion, costo) {
 
+    this.validarValoresNoNegativos = function (cantidadDatos, minutosParaLlamadas, duracion, costo) {
+        const algunoEsNegativo = cantidadDatos < 0 || minutosParaLlamadas < 0 || duracion < 0 || costo < 0;
+        if (algunoEsNegativo) throw new Error("El paquete no puede tener ninguno de sus valores negativo");
+    }
+
+    this.validarValoresNoNegativos(cantidadDatos, minutosParaLlamadas, duracion, costo);
+
     const MB_POR_GB = 1000;
 
     this.cantidadDatos = cantidadDatos;

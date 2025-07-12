@@ -5,6 +5,7 @@ const ConsumoDatos = require("./consumoDatos");
 const PaqueteNulo = require("./paqueteNulo");
 const HistorialConsumos = require("./historialConsumos");
 const FiltroRangoFechaHoraNulo = require("./filtroRangoFechaHoraNulo");
+const Paquete = require("./paquete");
 
 const Cliente = function (nombre, apellido, numeroDeLinea, renovarPaquetesAutomaticamente = false) {
     this.nombre = nombre;
@@ -30,17 +31,14 @@ const Cliente = function (nombre, apellido, numeroDeLinea, renovarPaquetesAutoma
 
     this.comprarPaquete = function (paquete) {
         this.validarQuePuedoComprarPaquete(paquete);
+        this.paqueteAsignado = paquete;
         const fechaActual = new Date();
-        this.paqueteAsignado = paquete.marcarComoCompradoEn(fechaActual);
+        this.paqueteAsignado.marcarComoCompradoEn(fechaActual);
     }
 
     this.validarQuePuedoComprarPaquete = function (paquete) {
-        this.validarSiYaTengoUnPaqueteAsignado();
         this.validarSiTengoSaldoSuficienteParaComprar(paquete);
-    }
-
-    this.validarSiYaTengoUnPaqueteAsignado = function () {
-        if (!this.paqueteAsignado.sosUnPaqueteNulo()) throw new Error("El cliente ya tiene un paquete asignado");
+        this.paqueteAsignado.validarSiPuedoAdquirirOtroPaquete();
     }
 
     this.validarSiTengoSaldoSuficienteParaComprar = function (unPaquete) {
@@ -50,18 +48,16 @@ const Cliente = function (nombre, apellido, numeroDeLinea, renovarPaquetesAutoma
     this.realizarLlamada = function (duracion, inicioConsumo, finConsumo) {
         if (this.renuevoPaqueteAutomaticamente) this.paqueteAsignado = this.paqueteAsignado.renovate();
         this.paqueteAsignado = this.paqueteAsignado.validaSiEstasVencido();
-        this.paqueteAsignado.descontarMinutos(duracion);
-        this.paqueteAsignado = this.paqueteAsignado.validaSiEstasAgotado();
+        this.paqueteAsignado = this.paqueteAsignado.descontarMinutos(duracion);
         const consumoMinutos = new ConsumoMinutos(duracion, inicioConsumo, finConsumo);
         this.registrarConsumo(consumoMinutos);
     }
 
-    this.consumirDatosEnMB = function (mbAConsumir, inicioConsumo, finConsumo) {
+    this.consumirDatosEnMB = function (mbAConsumir, inicioConsumo, finConsumo, appConsumidora = "") {
         if (this.renuevoPaqueteAutomaticamente) this.paqueteAsignado = this.paqueteAsignado.renovate();
         this.paqueteAsignado = this.paqueteAsignado.validaSiEstasVencido();
-        this.paqueteAsignado.descontarDatosEnMB(mbAConsumir);
-        this.paqueteAsignado = this.paqueteAsignado.validaSiEstasAgotado();
-        const consumoDatos = new ConsumoDatos(mbAConsumir, inicioConsumo, finConsumo);
+        this.paqueteAsignado = this.paqueteAsignado.descontarDatosEnMB(mbAConsumir, appConsumidora);
+        const consumoDatos = new ConsumoDatos(mbAConsumir, inicioConsumo, finConsumo, appConsumidora);
         this.registrarConsumo(consumoDatos);
     }
 
@@ -73,6 +69,19 @@ const Cliente = function (nombre, apellido, numeroDeLinea, renovarPaquetesAutoma
 
     this.obtenerHistorialConsumosOrdenadoPorFechaAscendente = function (filtroRangoFechaHora = new FiltroRangoFechaHoraNulo()) {
         return this.historialConsumos.obtenerConsumosOrdenadoPorFechaHoraAscendente(filtroRangoFechaHora);
+    }
+
+    this.prestarMbA = function (unCliente, mbAPrestar) {
+        this.paqueteAsignado.prestarDatosA(unCliente, mbAPrestar);
+    }
+
+    this.prestarMinutosA = function (unCliente, minutosAPrestar) {
+        this.paqueteAsignado.prestarMinutosA(unCliente, minutosAPrestar);
+    }
+
+    this.asignar = function (unPaquete) {
+        this.paqueteAsignado.validarSiPuedoAdquirirOtroPaquete();
+        this.paqueteAsignado = unPaquete;
     }
 }
 

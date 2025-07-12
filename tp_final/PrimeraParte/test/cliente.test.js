@@ -402,4 +402,8 @@ describe('Cliente de la empresa telefonica', () => {
 
         expect(() => new FiltroRangoFechaHora(fechaHoraInicio, fechaHoraFin)).toThrow(new Error("La fecha de fin debe ser posterior a la de inicio"));
     });
+
+    test("No es posible crear un paquete con alguno de sus valores negativo", () => {
+        expect(() => new Paquete(-1, 0, 0, 0)).toThrow(new Error("El paquete no puede tener ninguno de sus valores negativo"));
+    })
 });

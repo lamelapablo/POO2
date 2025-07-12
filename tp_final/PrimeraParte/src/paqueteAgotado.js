@@ -8,17 +8,15 @@ const PaqueteAgotado = function (paqueteOriginal) {
 
     this.descontarDatosEnMB = function () { throw new Error("El paquete se encuentra agotado"); }
 
-    // this.obtenerTiempoParaLlamadas = () => 0;
-
-    // this.obtenerDatosEnMB = () => 0;
-
-    // this.estoyVencido = () => false;
-
     this.validaSiEstasVencido = () => this;
 
     this.validarSiPuedoComprarOtroPaquete = () => true;
 
-    this.renovate = () => this.paqueteOriginal.renovate()
+    this.renovate = function () {
+        const fechaActual = new Date();
+        this.paqueteOriginal.marcarComoCompradoEn(fechaActual);
+        return this.paqueteOriginal;
+    }
 }
 
 module.exports = PaqueteAgotado;
