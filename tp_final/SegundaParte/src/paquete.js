@@ -90,19 +90,11 @@ const Paquete = function (cantidadDatos, minutosParaLlamadas, duracion, costo, a
         return new PaqueteAgotado(paqueteOriginal);
     }
 
-    this.prestarDatosA = function (unCliente, mbAPrestar) {
-        const gbAPrestar = mbAPrestar / MB_POR_GB;
-        this.descontarDatosEnMB(mbAPrestar);
-        const paquetePrestado = new Paquete(gbAPrestar, 0, this.duracion, this.costo);
-        paquetePrestado.marcarComoCompradoEn(this.fechaDeCompra);
-        unCliente.asignar(paquetePrestado);
-    }
-
-    this.prestarMinutosA = function (unCliente, minutosAPrestar) {
-        this.descontarMinutos(minutosAPrestar);
-        const paquetePrestado = new Paquete(0, minutosAPrestar, this.duracion, this.costo);
-        paquetePrestado.marcarComoCompradoEn(this.fechaDeCompra);
-        unCliente.asignar(paquetePrestado);
+    this.generaPaqueteParaPrestar = function (mb, minutos) {
+        const gb = mb / MB_POR_GB;
+        const paquete = new Paquete(gb, minutos, this.duracion, this.costo);
+        paquete.marcarComoCompradoEn(this.fechaDeCompra);
+        return paquete;
     }
 }
 

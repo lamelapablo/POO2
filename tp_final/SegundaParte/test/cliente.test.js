@@ -4,6 +4,7 @@ const Paquete = require("../src/paquete");
 const FiltroRangoFechaHora = require("../src/filtroRangoFechaHora");
 const FechaMinima = require("../src/fechaMinima");
 const FechaMaxima = require("../src/fechaMaxima");
+const PrestamoMbMinutos = require("../src/prestamoMbMinutos");
 
 describe('Cliente de la empresa telefonica', () => {
 
@@ -407,7 +408,7 @@ describe('Cliente de la empresa telefonica', () => {
 
     test("No es posible crear un paquete con alguno de sus valores negativo", () => {
         expect(() => new Paquete(-1, 0, 0, 0)).toThrow(new Error("El paquete no puede tener ninguno de sus valores negativo"));
-    })
+    });
 
     test("El cliente hace uso de sus datos a traves de instagram, que tiene uso ilimitado, por lo tanto tiene la misma cantidad de datos que al inicio", () => {
         cliente.cargarDinero(1000);
@@ -420,7 +421,7 @@ describe('Cliente de la empresa telefonica', () => {
 
         cliente.consumirDatosEnMB(10, inicioConsumo, finConsumo, "instagram");
         expect(paquete.obtenerDatosEnMB()).toBe(2500);
-    })
+    });
 
     test("El cliente puede ver en el historial de consumos que aplicacion lo realizo", () => {
         cliente.cargarDinero(1000);
@@ -435,7 +436,7 @@ describe('Cliente de la empresa telefonica', () => {
         const historialConsumos = cliente.obtenerHistorialConsumosOrdenadoPorFechaAscendente();
         const app = historialConsumos[0].obtenerAppConsumidora();
         expect(app).toBe("instagram");
-    })
+    });
 
     test("Un cliente le puede prestar datos a otro cliente al cual se le vencio el paquete", () => {
         jest.useFakeTimers();
@@ -448,13 +449,14 @@ describe('Cliente de la empresa telefonica', () => {
         cliente.comprarPaquete(paquete);
 
         jest.setSystemTime(new Date('2025-07-11T10:00:00Z'));
-        // const prestamoDatos = new PrestamoDatos(10, cliente);
+        const prestamo = new PrestamoMbMinutos(cliente, 100, 0);
         otroCliente.comprarPaquete(otroPaquete);
-        otroCliente.prestarMbA(cliente, 100);
+        // otroCliente.prestarMbA(cliente, 100);
+        otroCliente.efectuar(prestamo);
 
         expect(otroPaquete.obtenerDatosEnMB()).toBe(2400);
         expect(cliente.obtenerPaqueteAsignado().obtenerDatosEnMB()).toBe(100);
-    })
+    });
 
     test("Un cliente no le puede prestar datos a otro cliente al cual no se le vencio el paquete", () => {
         cliente.cargarDinero(1000);
@@ -465,8 +467,9 @@ describe('Cliente de la empresa telefonica', () => {
 
         otroCliente.comprarPaquete(otroPaquete);
 
-        expect(() => otroCliente.prestarMbA(cliente, 100)).toThrow("El cliente ya tiene un paquete asignado");
-    })
+        const prestamo = new PrestamoMbMinutos(cliente, 100, 0);
+        expect(() => otroCliente.efectuar(prestamo)).toThrow("El cliente ya tiene un paquete asignado");
+    });
 
     test("Un cliente le puede prestar datos a otro cliente al cual se le agoto el paquete", () => {
         cliente.cargarDinero(1000);
@@ -479,11 +482,12 @@ describe('Cliente de la empresa telefonica', () => {
         cliente.consumirDatosEnMB(2500);
 
         otroCliente.comprarPaquete(otroPaquete);
-        otroCliente.prestarMbA(cliente, 100);
+        const prestamo = new PrestamoMbMinutos(cliente, 100, 0);
+        otroCliente.efectuar(prestamo);
 
         expect(otroPaquete.obtenerDatosEnMB()).toBe(2400);
         expect(cliente.obtenerPaqueteAsignado().obtenerDatosEnMB()).toBe(100);
-    })
+    });
 
     test("Un cliente no le puede prestar datos a otro cliente al cual no se le agoto el paquete", () => {
         cliente.cargarDinero(1000);
@@ -496,18 +500,18 @@ describe('Cliente de la empresa telefonica', () => {
         cliente.consumirDatosEnMB(2499);
 
         otroCliente.comprarPaquete(otroPaquete);
-
-        expect(() => otroCliente.prestarMbA(cliente, 100)).toThrow("El cliente ya tiene un paquete asignado");
-    })
+        const prestamo = new PrestamoMbMinutos(cliente, 100, 0);
+        expect(() => otroCliente.efectuar(prestamo)).toThrow("El cliente ya tiene un paquete asignado");
+    });
 
     test("Un cliente no puede prestar mas datos de los que tiene", () => {
         otroCliente.cargarDinero(1000);
         const paquete = new Paquete(2.5, 1000, 3, 400);
 
         otroCliente.comprarPaquete(paquete);
-
-        expect(() => otroCliente.prestarMbA(cliente, 2501)).toThrow("El cliente no tiene suficientes datos para descontar");
-    })
+        const prestamo = new PrestamoMbMinutos(cliente, 2501, 0);
+        expect(() => otroCliente.efectuar(prestamo)).toThrow("El cliente no tiene suficientes datos para descontar");
+    });
 
     test("Un cliente le puede prestar minutos a otro cliente al cual se le vencio el paquete", () => {
         jest.useFakeTimers();
@@ -521,11 +525,12 @@ describe('Cliente de la empresa telefonica', () => {
 
         jest.setSystemTime(new Date('2025-07-11T10:00:00Z'));
         otroCliente.comprarPaquete(otroPaquete);
-        otroCliente.prestarMinutosA(cliente, 100);
+        const prestamo = new PrestamoMbMinutos(cliente, 0, 100);
+        otroCliente.efectuar(prestamo);
 
         expect(otroPaquete.obtenerTiempoParaLlamadas()).toBe(900);
         expect(cliente.obtenerPaqueteAsignado().obtenerTiempoParaLlamadas()).toBe(100);
-    })
+    });
 
     test("Un cliente no le puede prestar minutos a otro cliente al cual no se le vencio el paquete", () => {
         cliente.cargarDinero(1000);
@@ -535,9 +540,9 @@ describe('Cliente de la empresa telefonica', () => {
         cliente.comprarPaquete(paquete);
 
         otroCliente.comprarPaquete(otroPaquete);
-
-        expect(() => otroCliente.prestarMinutosA(cliente, 100)).toThrow("El cliente ya tiene un paquete asignado");
-    })
+        const prestamo = new PrestamoMbMinutos(cliente, 0, 100);
+        expect(() => otroCliente.efectuar(prestamo)).toThrow("El cliente ya tiene un paquete asignado");
+    });
 
     test("Un cliente le puede prestar minutos a otro cliente al cual se le agoto el paquete", () => {
         cliente.cargarDinero(1000);
@@ -550,11 +555,12 @@ describe('Cliente de la empresa telefonica', () => {
         cliente.consumirDatosEnMB(2500);
 
         otroCliente.comprarPaquete(otroPaquete);
-        otroCliente.prestarMinutosA(cliente, 100);
+        const prestamo = new PrestamoMbMinutos(cliente, 0, 100);
+        otroCliente.efectuar(prestamo);
 
         expect(otroPaquete.obtenerTiempoParaLlamadas()).toBe(900);
         expect(cliente.obtenerPaqueteAsignado().obtenerTiempoParaLlamadas()).toBe(100);
-    })
+    });
 
     test("Un cliente no le puede prestar minutos a otro cliente al cual no se le agoto el paquete", () => {
         cliente.cargarDinero(1000);
@@ -567,16 +573,68 @@ describe('Cliente de la empresa telefonica', () => {
         cliente.consumirDatosEnMB(2499);
 
         otroCliente.comprarPaquete(otroPaquete);
-
-        expect(() => otroCliente.prestarMinutosA(cliente, 100)).toThrow("El cliente ya tiene un paquete asignado");
-    })
+        const prestamo = new PrestamoMbMinutos(cliente, 0, 100);
+        expect(() => otroCliente.efectuar(prestamo)).toThrow("El cliente ya tiene un paquete asignado");
+    });
 
     test("Un cliente no puede prestar mas minutos de los que tiene", () => {
         otroCliente.cargarDinero(1000);
         const paquete = new Paquete(2.5, 1000, 3, 400);
 
         otroCliente.comprarPaquete(paquete);
+        const prestamo = new PrestamoMbMinutos(cliente, 0, 1001);
+        expect(() => otroCliente.efectuar(prestamo)).toThrow("El cliente no tiene suficientes minutos para descontar");
+    });
 
-        expect(() => otroCliente.prestarMinutosA(cliente, 1001)).toThrow("El cliente no tiene suficientes minutos para descontar");
-    })
+    test("Al cliente que hace el prestamo se le vence el paquete por lo cual al receptor tambien se le vence", () => {
+        jest.useFakeTimers();
+        jest.setSystemTime(new Date('2025-07-08T10:00:00Z'));
+
+        otroCliente.cargarDinero(1000);
+        const paquete = new Paquete(2.5, 1000, 3, 400);
+
+        otroCliente.comprarPaquete(paquete);
+        const prestamo = new PrestamoMbMinutos(cliente, 0, 100);
+        otroCliente.efectuar(prestamo);
+
+        jest.setSystemTime(new Date('2025-07-11T10:00:00Z'));
+
+        expect(() => cliente.realizarLlamada(10)).toThrow(new Error("El paquete adquirido esta vencido"));
+    });
+
+    test("Al cliente que hace el prestamo se le vence el paquete por lo cual no puede prestar minutos", () => {
+        jest.useFakeTimers();
+        jest.setSystemTime(new Date('2025-07-08T10:00:00Z'));
+
+        otroCliente.cargarDinero(1000);
+        const paquete = new Paquete(2.5, 1000, 3, 400);
+
+        otroCliente.comprarPaquete(paquete);
+
+        jest.setSystemTime(new Date('2025-07-11T10:00:00Z'));
+        const prestamo = new PrestamoMbMinutos(cliente, 0, 100);
+        expect(() => otroCliente.efectuar(prestamo)).toThrow(new Error("El paquete adquirido esta vencido"));
+    });
+
+    test("Al cliente que hace el prestamo se le vence el paquete pero como tiene renovacion automatica puede prestar minutos", () => {
+        jest.useFakeTimers();
+        jest.setSystemTime(new Date('2025-07-08T10:00:00Z'));
+
+        clienteConRenovacionAutomatica.cargarDinero(1000);
+        const paquete = new Paquete(2.5, 1000, 3, 400);
+
+        clienteConRenovacionAutomatica.comprarPaquete(paquete);
+
+        jest.setSystemTime(new Date('2025-07-11T10:00:00Z'));
+        const prestamo = new PrestamoMbMinutos(cliente, 0, 100);
+        clienteConRenovacionAutomatica.efectuar(prestamo);
+
+        expect(cliente.obtenerPaqueteAsignado().obtenerTiempoParaLlamadas()).toBe(100);
+    });
+
+    test("No puede hacer un prestamo un cliente que no compro previamente un paquete", () => {
+        const prestamo = new PrestamoMbMinutos(otroCliente, 0, 100);
+
+        expect(() => cliente.efectuar(prestamo)).toThrow(new Error("El cliente no tiene un paquete asignado"));
+    });
 });

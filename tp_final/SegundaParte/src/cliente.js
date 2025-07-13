@@ -71,17 +71,15 @@ const Cliente = function (nombre, apellido, numeroDeLinea, renovarPaquetesAutoma
         return this.historialConsumos.obtenerConsumosOrdenadoPorFechaHoraAscendente(filtroRangoFechaHora);
     }
 
-    this.prestarMbA = function (unCliente, mbAPrestar) {
-        this.paqueteAsignado.prestarDatosA(unCliente, mbAPrestar);
-    }
-
-    this.prestarMinutosA = function (unCliente, minutosAPrestar) {
-        this.paqueteAsignado.prestarMinutosA(unCliente, minutosAPrestar);
-    }
-
     this.asignar = function (unPaquete) {
         this.paqueteAsignado.validarSiPuedoAdquirirOtroPaquete();
         this.paqueteAsignado = unPaquete;
+    }
+
+    this.efectuar = function (prestamo) {
+        if (this.renuevoPaqueteAutomaticamente) this.paqueteAsignado = this.paqueteAsignado.renovate();
+        this.paqueteAsignado = this.paqueteAsignado.validaSiEstasVencido();
+        prestamo.ejecutarDesde(this.paqueteAsignado);
     }
 }
 
