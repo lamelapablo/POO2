@@ -451,7 +451,6 @@ describe('Cliente de la empresa telefonica', () => {
         jest.setSystemTime(new Date('2025-07-11T10:00:00Z'));
         const prestamo = new PrestamoMbMinutos(cliente, 100, 0);
         otroCliente.comprarPaquete(otroPaquete);
-        // otroCliente.prestarMbA(cliente, 100);
         otroCliente.efectuar(prestamo);
 
         expect(otroPaquete.obtenerDatosEnMB()).toBe(2400);
